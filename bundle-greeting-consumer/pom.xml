@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    POM del BUNDLE 2: 'bundle-greeting-consumer'.
+    Este bundle consume el GreetingService publicado por el otro bundle.
+    Conoce SOLO la interfaz (paquete api), nunca la implementación → bajo acoplamiento.
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+                             http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <!-- Modelo POM (siempre 4.0.0). -->
+    <modelVersion>4.0.0</modelVersion>
+
+    <!-- Heredamos del POM padre versiones, encoding, target Java, etc. -->
+    <parent>
+        <groupId>com.example</groupId>
+        <artifactId>osgi-parent</artifactId>
+        <version>1.0.0</version>
+    </parent>
+
+    <!-- Identificador único del bundle. -->
+    <artifactId>bundle-greeting-consumer</artifactId>
+    <!-- packaging 'bundle' = será procesado por maven-bundle-plugin para producir un JAR OSGi. -->
+    <packaging>bundle</packaging>
+    <name>OSGi Karaf Demo - Greeting Consumer Bundle</name>
+
+    <dependencies>
+        <!-- API OSGi: necesaria para BundleActivator, BundleContext, ServiceListener. -->
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>osgi.core</artifactId>
+        </dependency>
+        <!--
+            DEPENDENCIA AL BUNDLE PRODUCTOR — pero SOLO en tiempo de compilación,
+            para poder importar la interfaz GreetingService. En runtime, OSGi resolverá
+            el Import-Package contra el bundle productor instalado en el framework.
+            scope 'provided' garantiza que el JAR del productor NO se incluya dentro del
+            JAR del consumidor (evitamos clases duplicadas en classloaders distintos).
+        -->
+        <dependency>
+            <groupId>com.example</groupId>
+            <artifactId>bundle-greeting-service</artifactId>
+            <version>1.0.0</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <!-- Plugin que genera el bundle OSGi con cabeceras MANIFEST.MF apropiadas. -->
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <configuration>
+                    <instructions>
+                        <!-- Identificador único del bundle dentro del framework. -->
+                        <Bundle-SymbolicName>${project.groupId}.${project.artifactId}</Bundle-SymbolicName>
+                        <Bundle-Version>${project.version}</Bundle-Version>
+                        <!--
+                            No exportamos nada: el consumidor es un cliente terminal.
+                            Cuanto menos exporta un bundle, menor su superficie y mejor el desacoplamiento.
+                        -->
+                        <Export-Package />
+                        <!--
+                            Import-Package '*' = BND deduce automáticamente los imports a partir
+                            del bytecode. Se generará: Import-Package: com.example.greeting.api,
+                            org.osgi.framework. OSGi resolverá estas dependencias contra los
+                            bundles instalados antes de pasar a RESOLVED.
+                        -->
+                        <Import-Package>*</Import-Package>
+                        <!-- Activator: punto de entrada del ciclo de vida del bundle. -->
+                        <Bundle-Activator>com.example.consumer.Activator</Bundle-Activator>
+                    </instructions>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>

@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    POM del BUNDLE 1: 'bundle-greeting-service'.
+    Este bundle:
+      - Define la interfaz GreetingService (contrato público).
+      - Implementa la interfaz con GreetingServiceImpl (clase interna, NO exportada).
+      - Al arrancar, registra una instancia de GreetingService en el Service Registry de OSGi.
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+                             http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <!-- Versión del modelo POM (siempre 4.0.0 con Maven 3). -->
+    <modelVersion>4.0.0</modelVersion>
+
+    <!-- Referencia al POM padre para heredar versiones, propiedades y plugin management. -->
+    <parent>
+        <groupId>com.example</groupId>
+        <artifactId>osgi-parent</artifactId>
+        <version>1.0.0</version>
+    </parent>
+
+    <!-- Identificador único de este módulo dentro del groupId del padre. -->
+    <artifactId>bundle-greeting-service</artifactId>
+    <!--
+        packaging 'bundle' (en vez de 'jar') le indica al maven-bundle-plugin
+        que debe generar un JAR con MANIFEST.MF enriquecido con cabeceras OSGi.
+    -->
+    <packaging>bundle</packaging>
+    <name>OSGi Karaf Demo - Greeting Service Bundle</name>
+
+    <!-- Dependencias necesarias para compilar este bundle. -->
+    <dependencies>
+        <dependency>
+            <!-- API de OSGi (BundleActivator, BundleContext). Versión heredada del padre. -->
+            <groupId>org.osgi</groupId>
+            <artifactId>osgi.core</artifactId>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <!-- Plugin que produce el bundle OSGi a partir del JAR compilado. -->
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <configuration>
+                    <!--
+                        Instrucciones BND. Cada <key> se traduce a una cabecera del MANIFEST.MF.
+                        Estas cabeceras son lo que distingue un JAR normal de un bundle OSGi.
+                    -->
+                    <instructions>
+                        <!--
+                            Bundle-SymbolicName: identificador único del bundle dentro del framework.
+                            Equivale al groupId.artifactId en mundo Maven.
+                        -->
+                        <Bundle-SymbolicName>${project.groupId}.${project.artifactId}</Bundle-SymbolicName>
+                        <!-- Versión del bundle, usada por OSGi para resolución de dependencias. -->
+                        <Bundle-Version>${project.version}</Bundle-Version>
+                        <!--
+                            Export-Package: paquetes que este bundle EXPONE al resto.
+                            Solo 'api' es público → la implementación queda OCULTA = bajo acoplamiento.
+                        -->
+                        <Export-Package>com.example.greeting.api</Export-Package>
+                        <!--
+                            Import-Package: paquetes que este bundle NECESITA de otros.
+                            '*' = importar automáticamente todo lo referenciado en el código (BND lo deduce).
+                        -->
+                        <Import-Package>*</Import-Package>
+                        <!--
+                            Bundle-Activator: clase que el framework instancia y cuyo start()/stop()
+                            se invoca al arrancar/parar el bundle. Es el punto de entrada del ciclo de vida.
+                        -->
+                        <Bundle-Activator>com.example.greeting.Activator</Bundle-Activator>
+                    </instructions>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>

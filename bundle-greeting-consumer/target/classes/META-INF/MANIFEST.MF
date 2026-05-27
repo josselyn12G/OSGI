@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Bnd-LastModified: 1779857658918
+Build-Jdk-Spec: 25
+Bundle-Activator: com.example.consumer.Activator
+Bundle-ManifestVersion: 2
+Bundle-Name: OSGi Karaf Demo - Greeting Consumer Bundle
+Bundle-SymbolicName: com.example.bundle-greeting-consumer
+Bundle-Version: 1.0.0
+Created-By: Apache Maven Bundle Plugin 5.1.9
+Import-Package: com.example.greeting.api;version="[1.0,2)",java.io,java.
+ lang,java.lang.invoke,org.osgi.framework;version="[1.9,2)"
+Require-Capability: osgi.ee;filter:="(&(osgi.ee=JavaSE)(version=11))"
+Tool: Bnd-6.3.1.202206071316

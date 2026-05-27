@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    POM PADRE (parent / aggregator).
+    Su responsabilidad es agrupar los módulos hijos y centralizar versiones,
+    propiedades y configuración común del build. NO produce un JAR ejecutable,
+    por eso su <packaging> es 'pom'.
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+                             http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <!-- Versión del modelo POM. Para Maven 3.x siempre es 4.0.0. -->
+    <modelVersion>4.0.0</modelVersion>
+
+    <!-- Coordenadas Maven (groupId:artifactId:version) que identifican unívocamente este artefacto. -->
+    <groupId>com.example</groupId>
+    <artifactId>osgi-parent</artifactId>
+    <version>1.0.0</version>
+    <!-- 'pom' = proyecto agregador: solo agrupa módulos, no compila código propio. -->
+    <packaging>pom</packaging>
+
+    <!-- Nombre legible mostrado por Maven y herramientas IDE. -->
+    <name>OSGi Karaf Demo - Parent</name>
+
+    <!-- Lista de submódulos (subcarpetas con su propio pom.xml) que Maven construirá en orden. -->
+    <modules>
+        <module>bundle-greeting-service</module>
+        <module>bundle-greeting-consumer</module>
+    </modules>
+
+    <!-- Propiedades reutilizables (versiones, encoding, target de Java). Evitan duplicación. -->
+    <properties>
+        <!-- Codificación de los archivos fuente: UTF-8 para soportar caracteres no ASCII (acentos, ñ). -->
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <!-- Nivel de bytecode Java a compilar. 11 es compatible con Karaf 4.4.x. -->
+        <maven.compiler.source>11</maven.compiler.source>
+        <maven.compiler.target>11</maven.compiler.target>
+        <!-- Versión del API de OSGi (Release 7, equivalente a OSGi Core 7.0.0). -->
+        <osgi.version>7.0.0</osgi.version>
+        <!-- Versión del maven-bundle-plugin (de Apache Felix) que genera bundles OSGi a partir de JARs. -->
+        <bundle.plugin.version>5.1.9</bundle.plugin.version>
+    </properties>
+
+    <!--
+        dependencyManagement centraliza las versiones de dependencias.
+        Los módulos hijos declaran la dependencia sin <version> y heredan la versión de aquí.
+    -->
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <!-- API estándar de OSGi Core. Contiene BundleContext, BundleActivator, ServiceReference, etc. -->
+                <groupId>org.osgi</groupId>
+                <artifactId>osgi.core</artifactId>
+                <version>${osgi.version}</version>
+                <!--
+                    scope 'provided' = la librería está disponible en tiempo de compilación
+                    pero NO se empaqueta dentro del bundle, porque el framework OSGi (Karaf/Felix)
+                    ya la proporciona en runtime. Empaquetarla causaría conflictos de ClassLoader.
+                -->
+                <scope>provided</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <!-- Configuración común de plugins para todos los módulos hijos. -->
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <!--
+                        maven-bundle-plugin (Apache Felix) lee instrucciones BND y genera
+                        un MANIFEST.MF con las cabeceras OSGi necesarias
+                        (Bundle-SymbolicName, Export-Package, Import-Package, etc.).
+                        Sin este plugin, el JAR resultante NO sería un bundle válido.
+                    -->
+                    <groupId>org.apache.felix</groupId>
+                    <artifactId>maven-bundle-plugin</artifactId>
+                    <version>${bundle.plugin.version}</version>
+                    <!-- 'extensions = true' habilita el packaging type 'bundle'. -->
+                    <extensions>true</extensions>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
+
+</project>
