@@ -20,22 +20,8 @@ Un **bundle** es un archivo `.jar` enriquecido con metadatos especiales en el `M
 
 ## 2. Patrones de Arquitectura que utiliza OSGi
 
-OSGi es un caso de estudio porque combina **varios patrones de arquitectura y de diseño**:
-
-### 2.1 Arquitectura Basada en Componentes (Component-Based Architecture)
-El sistema se construye ensamblando piezas autocontenidas (bundles). Cada componente puede desarrollarse, probarse y desplegarse de forma independiente.
-
-### 2.2 Arquitectura Orientada a Servicios (SOA — in-process)
-OSGi implementa una **SOA dentro de la misma JVM**. Los bundles se comunican únicamente a través de **interfaces de servicio** publicadas en un registro. Esto desacopla al productor del consumidor.
-
-### 2.3 Microkernel / Plug-in Architecture
+### Microkernel / Plug-in Architecture
 El framework OSGi (Felix/Equinox) actúa como **microkernel**: un núcleo mínimo responsable solo del ciclo de vida, la resolución de dependencias y el registro de servicios. Toda la funcionalidad de negocio vive en **plug-ins** (bundles) que se cargan sobre él. Eclipse IDE es el ejemplo canónico.
-
-### 2.4 Patrones de diseño internos
-- **Service Locator / Registry**: el `BundleContext` actúa como localizador.
-- **Observer**: `ServiceListener` y `BundleListener` notifican eventos de aparición/desaparición de servicios o bundles.
-- **Whiteboard Pattern**: alternativa al Listener tradicional; los consumidores registran objetos en el registry y el productor los descubre.
-- **Dependency Injection**: declarativo mediante **Declarative Services (DS)** o **Blueprint** — los servicios se inyectan sin código boilerplate.
 
 ## 3. ¿Qué podemos hacer con OSGi?
 
